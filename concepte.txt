@@ -1,0 +1,117 @@
+catégorie ost
+équipe 1 clique, la carte prend un fond rouge transparent, équipe 2 fond bleu. 2 sec plus tard la bonne carte clignote en vert puis disparait.
+Lorsqu'on clique, on attend le retour du server avant validation (le server empeche 2 réponses pour la même manche)
+
+Je veux créer un jeu sur multijoueur sur navigateur inspiré du karuta dans lequel les joueurs doivent reconnaitre des personnes grâce à des extraits audio, le nom des personnes étant écrit sur des cartes.
+
+Concepte :
+
+Chaque partie voit s'affronter 2 équipes.
+
+Chaque équipe commence avec le même nombre de cartes, leur carte sont placées de leur côté du terrain.
+
+Chaque côté du terrain comporte 25 emplacements de carte.
+
+Les joueurs peuvent réarranger leurs cartes avant chaque extrait.
+
+Le but est de cliquer sur la carte qui va avec l'audio.
+
+Si un joueur clique sur la bonne carte :
+- La carte est retirée du terrain
+- Si la carte était du côté de l'autre équipe, le joueur choisit une de ses cartes pour la mettre du côté de son adversaire.
+
+S'il clique sur la mauvaise carte :
+- On considére que l'autre équipe a cliqué sur la bonne carte.
+
+La partie se termine lorsqu'un joueur n'a plus de cartes de son côté du terrain, ce joueur gagne la partie.
+
+
+Sélection des cartes qui seront dans la partie :
+Il y'aura plusieurs catégories, la première à être implantée sera la catégorie "Seiyuu".
+
+
+
+Extraits audio et données pour les cartes :
+Pour la catégorie Seiyuu, les extraits audio et les noms à mettre sur les cartes sont stockés sur un google spreadsheet qui a cette structure :
+
+ID	Seiyuu	Gender	Link
+1	Ai Fairouz	Female	https://files.catbox.moe/1753w9.mp3
+2	Ai Kakuma	Female	https://files.catbox.moe/kekhjd.mp3
+3	Ai Kakuma	Female	https://files.catbox.moe/rtgh2e.ogg
+…	…	…	…
+
+Il y'aura une seule carte par seiyuu, même si cette seiyuu à plusieurs extraits audio.
+Si une seiyuu a plusieurs extraits, un de ses extrait est choisit aléatoirement pour la partie.
+
+Les autres catégories seront sur d'autres gdoc et n'auront pas les mêmes intitulés de colonnes, il faudra donc penser à faire une fonction à part pour lancer l'affichage des cartes disponibles pour le mode seiyuu.
+
+Partie technique :
+
+Toute l'application sera sur une seule page html.
+
+Le temps des tests, je lancerais l'application en local.
+
+A la fin, le jeu sera déployé sur Heroku mais on ne s'intéressera à cette partie qu'à la toute fin.
+
+Il faut créer un lobby pour que les joueurs puissent créer/rejoindre des salles.
+
+On utilisera Socket.IO et Express.
+
+Pas de framework, tout se fera en html / js.
+
+Le google doc contenant les données pour les seiyuu est https://docs.google.com/spreadsheets/d/1WFgQpTXZM6H5RzLdZSwu1R2llwM1ZoTx-Z2_TJBdVU4/edit?pli=1&gid=0#gid=0  j'ajouterais la clé api plus tard si nécessaire.
+
+Le projet s'appelle karuta, j'ai créé les fichiers suivant qui nous serviront pour le code :
+
+/server.js /public/game.js /public/index.html /public/lobby.js /public/pregame.js /public/styles.css /public/background.png
+
+L'application contiendra 3 parties :
+- le lobby (pour la création des salles),
+- la prépartie (dans une salle pour choisir les paramètres de la partie et lancer la partie),
+- le jeu en lui même
+
+Les scripts côté client seront séparer dans mes 3 fichiers js et les styles seront mis dans le fichier styles.css afin de ne pas polluer le html.
+
+
+Nous procéderont étape par étape.
+
+Pour commencer nous allons créer le lobby.
+
+Dans le lobby il y'aura 2 box l'une en dessous de l'autre avec ce style :
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px auto;
+  background-color: rgba(250, 164, 164, 0.95);
+  padding: 20px;
+  border-radius: 26px;
+  position: relative;
+  border: 4px solid #801d1a;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+Dans la première box, il y'aura :
+- une case d'input pour le pseudo du joueur
+- juste en dessous, une case d'input pour le nom de la salle
+- encore en dessous, une bouton "créer une salle
+
+Les cases d'input et le bouton auront un style moderne.
+
+Le bouton créer une salle sera bloqué tant que le pseudo et le nom de la salle ne seront pas renseignés (et se débloque lorssque les deux sont renseignés).
+
+Dans la deuxième box, il y'aura :
+- Le nom de chaque salle existante (avec un retour à la ligne entre chaque salle)
+- un bouton rejoindre pour chaque salle
+
+Le bouton rejoindre sera bloqué tant que le pseudo n'est pas renseigné.
+
+Lorsqu'un joueur créer ou rejoint une salle, le lobby disparait et la page de prépartie apparait.
+Pour le moment dans la page de prépartie on ne fera apparaitre qu'une box en haut à gauche qui contiendra :
+"Équipe 1" en gras,
+Le nom des joueurs dans l'équipe 1 avec retour à la ligne entre chaque joueur (les noms seront en gris et seront écrit en plus petit que "Équipe 1"),
+"Équipe 2" en gras,
+Le nom des joueurs dans l'équipe 2.
+
+De base quand un joueur rejoint ou créé un lobby, il est mis dans l'équipe 1.
+Lorsqu'un joueur clique sur "Équipe 1" ou "Équipe 2" il est déplacé dans cette équipe et le changement est montré en temps réel aux autres joueurs dans la salle.
+L'équipe étant importante pour le jeu, il s'agira d'un tag qui sera affecté à chaque joueur et qui sera gardé en mémoire par le serveur tant que le joueur est dans la salle.

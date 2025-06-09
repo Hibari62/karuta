@@ -1,0 +1,155 @@
+<!-- public/index.html -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karuta</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!--============================
+      SECTION LOBBY
+  =============================-->
+  <div id="lobby">
+    <!-- Première box : pseudo + nom de salle + bouton création -->
+    <div class="box">
+      <input
+        type="text"
+        id="usernameInput"
+        placeholder="Votre pseudo"
+      />
+      <input
+        type="text"
+        id="roomInput"
+        placeholder="Nom de la salle"
+      />
+      <button id="createBtn" disabled>Créer une salle</button>
+    </div>
+
+    <!-- Deuxième box : liste des salles existantes -->
+    <div class="box">
+      <div id="roomsList">
+        <!-- Les salles seront injectées ici dynamiquement -->
+        <p>Aucune salle disponible</p>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!--============================
+      SECTION PRÉPARTIE (cachée par défaut)
+  =============================-->
+  <div id="pregame" style="display: none; position: relative; height: 100vh;">
+      <!-- box pour le choix du thème -->
+    <div id="settingsBox" class="settings-box">
+      <!-- Ligne 1 : Thème + menu déroulant -->
+      <div class="settings-row">
+        <label for="themeSelect">Thème : </label>
+        <select id="themeSelect">
+          <option value="seiyuu">Seiyuu</option>
+          <!-- À terme : d'autres options ici -->
+        </select>
+      </div>
+      <!-- Ligne 2 : Nombre de cartes -->
+      <div class="settings-row">
+        <label for="cardsCount">Nombre de cartes : </label>
+        <input type="number" id="cardsCount" value="50" min="2" max="50" step="1" />
+      </div>
+      <!-- Ligne 3 : Bouton Valider -->
+      <div class="settings-row">
+        <button id="validateSettingsBtn" disabled>Valider</button>
+      </div>
+    </div>
+
+    <!-- ===== Box de sélection de cartes ===== -->
+    <div id="cardSelectBox" class="card-select-box" style="display: none;">
+      <!-- Ligne des contrôles (Retour, 🎲, ♂, ♀, compteur) -->
+      <div class="selection-controls">
+        <button id="backBtn">Retour</button>
+        <button id="randomBtn">🎲</button>
+        <button id="maleBtn">♂</button>
+        <button id="femaleBtn">♀</button>
+        <span id="selectedCounter">Cartes : 0/0</span>
+      </div>
+      <!-- Liste des cartes scrollable -->
+      <div class="cards-list" id="cardsList">
+        <!-- Les .card seront injectées ici dynamiquement -->
+      </div>
+      <!-- Bouton Commencer en bas à droite -->
+      <div class="start-container">
+        <button id="startGameBtn" disabled>Commencer</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!--============================
+    SECTION JEU (cachée par défaut)
+  =============================-->
+  <div id="game" style="display: none; height: 100vh; position: relative;">
+
+    <!-- ==== Bar “Adversaire prêt” (cliquable uniquement si j’appartiens à l’équipe adverse) ==== -->
+    <div id="oppReadyBar" class="ready-bar">
+      L'adversaire n'est pas prêt
+    </div>
+
+    <!-- ==== Terrain adverse (miroir) ==== -->
+    <div id="opponentField" class="field mirrored">
+      <!-- On injectera 30 <div class="slot" data-pos="0..29"></div> -->
+    </div>
+
+    <!-- ==== Terrain propre (bas de l’écran) ==== -->
+    <div id="ownField" class="field">
+      <!-- 30 <div class="slot" data-pos="0..29"></div> -->
+    </div>
+
+    <!-- ==== Bar “MaTeam prêt” en bas ==== -->
+    <div id="ownReadyBar" class="ready-bar">
+      Mettez-vous prêt
+    </div>
+    <div id="transferMessage" style="display:none; position: absolute; top: 50%; left: 50%;
+     transform: translate(-50%, -50%); padding: 10px; background: rgba(0,0,0,0.6);
+     color: white; border-radius: 8px; font-size: 1.2em; z-index: 1000;">
+    <!-- Texte modifié dynamiquement -->
+    </div>
+  </div>
+
+  <!-- Boîte en haut à gauche pour afficher les équipes -->
+  <div id="teamsBox" style="display: none;">
+    <h2 id="team1Header">Équipe 1</h2>
+    <div id="team1List">
+      <!-- Noms des joueurs équipe 1 (injectés par JS) -->
+    </div>
+    <h2 id="team2Header">Équipe 2</h2>
+    <div id="team2List">
+      <!-- Noms des joueurs équipe 2 (injectés par JS) -->
+    </div>
+  </div>
+
+  <div id="matchOver" style="display: none;" class="hidden flex-col items-center justify-center gap-4">
+    <div class="box">
+      <h1 id="winnerTitle"></h1>
+      <div id="winnerPlayers"></div>
+    </div>
+  </div>
+  
+  <audio id="audioPlayer" style="display: none;"></audio>
+
+  <!-- Socket.IO client -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Initialisation globale de la socket -->
+  <script>
+    const socket = io();
+  </script>
+  <!-- Scripts clients -->
+  <script src="lobby.js"></script>
+  <script src="pregame.js"></script>
+  <script src="game.js"></script>
+  <!-- (Le jeu proprement dit sera dans game.js plus tard) -->
+</body>
+</html>
