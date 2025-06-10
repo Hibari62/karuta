@@ -6,6 +6,7 @@ const oppReadyBar   = document.getElementById('oppReadyBar');
 const ownReadyBar   = document.getElementById('ownReadyBar');
 const opponentField = document.getElementById('opponentField');
 const ownField      = document.getElementById('ownField');
+const volumeSlider = document.getElementById('volumeSlider');
 
 let windowCurrentRoom = null;
 let windowMyTeam      = null; // 1 ou 2, fourni par join_success
@@ -129,10 +130,12 @@ socket.on('action_started', ({ link, cardId, correctTeam }) => {
     // Si besoin, on crée dynamiquement
     const a = document.createElement('audio');
     a.id = 'audioPlayer';
+    a.volume = volumeSlider.value;
     document.body.appendChild(a);
   }
   const player = document.getElementById('audioPlayer');
   player.src = link;
+  player.volume = volumeSlider.value;
   player.load();
 
   // 3) Pour essayer de synchroniser, on attend que l’élément puisse jouer : 
@@ -510,3 +513,9 @@ function goToPreparationPhase() {
   oppReadyBar.style.cursor = 'default';
 
 }
+
+volumeSlider.addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  const pl = document.getElementById('audioPlayer');
+  if (pl) pl.volume = v;
+});

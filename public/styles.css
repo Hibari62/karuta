@@ -374,3 +374,23 @@ body {
   height: 99%;
   align-items: center;
 }
+
+.volume-control {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  width: calc(10% - 71px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0,0,0,0);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.9rem;
+  z-index: 100;
+}
+.volume-control input[type="range"] {
+  width: 100%;
+  accent-color: #ff94a8;
+}
